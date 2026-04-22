@@ -34,7 +34,12 @@ class MusicSourceAdapter:
             "format":      "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best",
             "quiet":       True,
             "no_warnings": True,
-            "cookiefile": "/opt/render/project/src/backend/cookies.txt",
+            "cookiefile":  "/opt/render/project/src/backend/cookies.txt",
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["web_creator"],
+                }
+            },
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
