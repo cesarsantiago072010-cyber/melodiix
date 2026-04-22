@@ -34,7 +34,7 @@ class MusicSourceAdapter:
             "format":      "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best",
             "quiet":       True,
             "no_warnings": True,
-            "cookiefile":  "cookies.txt",
+            "cookiefile": "/opt/render/project/src/backend/cookies.txt",
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
