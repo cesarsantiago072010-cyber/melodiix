@@ -28,29 +28,28 @@ class MusicSourceAdapter:
             "stream_url":  "",
         }
 
-    async def get_stream_url(self, video_id: str) -> str:
-        import yt_dlp
-        ydl_opts = {
-            "format":      "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best",
-            "quiet":       True,
-            "no_warnings": True,
-            "cookiefile":  "/opt/render/project/src/backend/cookies.txt",
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["web_creator"],
-                }
-            },
-        }
+async def get_stream_url(self, video_id: str) -> str:
+    import httpx
+    instances = [
+        "https://invidious.snopyta.org",
+        "https://invidious.kavin.rocks",
+        "https://vid.puffyan.us",
+    ]
+    for instance in instances:
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(
-                    f"https://www.youtube.com/watch?v={video_id}",
-                    download=False,
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    f"{instance}/api/v1/videos/{video_id}",
+                    timeout=10
                 )
-            return info.get("url", "")
-        except Exception as e:
-            print(f"yt-dlp error: {e}")
-            return ""
+                data = resp.json()
+                formats = data.get("adaptiveFormats", [])
+                audio = [f for f in formats if f.get("type", "").startswith("audio")]
+                if audio:
+                    return audio[0]["url"]
+        except Exception:
+            continue
+    return ""
 
     async def get_related(self, track_id: str) -> dict:
         try:
