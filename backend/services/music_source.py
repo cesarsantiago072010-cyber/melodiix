@@ -29,26 +29,16 @@ class MusicSourceAdapter:
         }
 
     async def get_stream_url(self, video_id: str) -> str:
-        import yt_dlp
-
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "quiet": True,
-            "no_warnings": True,
-        }
-
         def _extract():
             try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    info = ydl.extract_info(
-                        f"https://www.youtube.com/watch?v={video_id}",
-                        download=False
-                    )
-                    url = info.get("url", "")
-                    print(f"[YTDLP] Got URL: {url[:80]}")
-                    return url
+                from pytubefix import YouTube
+                yt_video = YouTube(f"https://www.youtube.com/watch?v={video_id}")
+                stream = yt_video.streams.filter(only_audio=True).first()
+                url = stream.url
+                print(f"[PYTUBE] Got URL: {url[:80]}")
+                return url
             except Exception as e:
-                print(f"[YTDLP] Error: {e}")
+                print(f"[PYTUBE] Error: {e}")
                 return ""
 
         loop = asyncio.get_event_loop()
