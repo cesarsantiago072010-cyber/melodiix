@@ -10,9 +10,9 @@ class MusicSourceAdapter:
         return {"tracks": [self._format_track(r) for r in results
                            if r.get("videoId")]}
 
-    def _format_track(self, raw: dict) -> dict:  # ← 4 espacios
-        vid   = raw.get("videoId", "")
-        thumb   = raw.get("thumbnails", [])
+    def _format_track(self, raw: dict) -> dict:
+        vid    = raw.get("videoId", "")
+        thumb  = raw.get("thumbnails", [])
         if isinstance(thumb, dict):
             thumb = [thumb]
         artists = raw.get("artists") or [{}]
@@ -30,12 +30,12 @@ class MusicSourceAdapter:
 
     async def get_stream_url(self, video_id: str) -> str:
         import yt_dlp
-    ydl_opts = {
-        "format":      "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best",
-        "quiet":       True,
-        "no_warnings": True,
-        "cookiefile":  "cookies.txt",
-    }
+        ydl_opts = {
+            "format":      "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best",
+            "quiet":       True,
+            "no_warnings": True,
+            "cookiefile":  "cookies.txt",
+        }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(
