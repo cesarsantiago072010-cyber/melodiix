@@ -6,7 +6,7 @@ import '../../models/track.dart';
 // ------- Networking -------
 final dioProvider = Provider<Dio>((ref) {
   return Dio(BaseOptions(
-    baseUrl: 'http://192.168.1.70:8000', // Emulador Android
+    baseUrl: 'https://melodiix.onrender.com',
     // Dispositivo físico → cambia por tu IP local: 'http://192.168.1.X:8000'
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 30),
