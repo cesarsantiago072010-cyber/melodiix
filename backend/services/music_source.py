@@ -1,4 +1,5 @@
 from ytmusicapi import YTMusic
+import httpx
 
 yt = YTMusic()
 
@@ -28,28 +29,28 @@ class MusicSourceAdapter:
         }
 
     async def get_stream_url(self, video_id: str) -> str:
-        import httpx
         instances = [
-            "https://pipedapi.kavin.rocks",
-            "https://pipedapi.adminforge.de",
-            "https://api.piped.projectsegfau.lt",
+            "https://invidious.privacyredirect.com",
+            "https://invidious.nerdvpn.de",
+            "https://inv.nadeko.net",
+            "https://invidious.io.lol",
         ]
-        for instance in instances:
-            try:
-                async with httpx.AsyncClient() as client:
-                    resp = await client.get(
-                        f"{instance}/streams/{video_id}",
-                        timeout=10
-                    )
-                    print(f"[PIPED] {instance} status: {resp.status_code}")
-                    print(f"[PIPED] response: {resp.text[:300]}")
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            for instance in instances:
+                try:
+                    resp = await client.get(f"{instance}/api/v1/videos/{video_id}")
+                    print(f"[INV] {instance} status: {resp.status_code}")
+                    if resp.status_code != 200:
+                        continue
                     data = resp.json()
-                    audio_streams = data.get("audioStreams", [])
-                    if audio_streams:
-                        return audio_streams[0]["url"]
-            except Exception as e:
-                print(f"[PIPED] {instance} error: {e}")
-                continue
+                    formats = data.get("adaptiveFormats", [])
+                    audio = [f for f in formats if f.get("type","").startswith("audio")]
+                    if audio:
+                        print(f"[INV] Got URL from {instance}")
+                        return audio[0]["url"]
+                except Exception as e:
+                    print(f"[INV] {instance} error: {e}")
+                    continue
         return ""
 
     async def get_related(self, track_id: str) -> dict:
