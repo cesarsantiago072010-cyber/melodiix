@@ -30,25 +30,30 @@ class MusicSourceAdapter:
 
 async def get_stream_url(self, video_id: str) -> str:
     import httpx
+
     instances = [
-        "https://invidious.snopyta.org",
-        "https://invidious.kavin.rocks",
-        "https://vid.puffyan.us",
+        "https://pipedapi.kavin.rocks",
+        "https://pipedapi.adminforge.de",
+        "https://api.piped.projectsegfau.lt",
     ]
+
     for instance in instances:
         try:
             async with httpx.AsyncClient() as client:
                 resp = await client.get(
-                    f"{instance}/api/v1/videos/{video_id}",
+                    f"{instance}/streams/{video_id}",
                     timeout=10
                 )
                 data = resp.json()
-                formats = data.get("adaptiveFormats", [])
-                audio = [f for f in formats if f.get("type", "").startswith("audio")]
-                if audio:
-                    return audio[0]["url"]
+
+                # Piped devuelve audioStreams, agarramos el de mejor calidad
+                audio_streams = data.get("audioStreams", [])
+                if audio_streams:
+                    return audio_streams[0]["url"]
+
         except Exception:
             continue
+
     return ""
 
     async def get_related(self, track_id: str) -> dict:
