@@ -30,12 +30,12 @@ class MusicSourceAdapter:
 
     async def get_stream_url(self, video_id: str) -> str:
         import yt_dlp
-        ydl_opts = {
-            "format":      "bestaudio/best",
-            "quiet":       True,
-            "no_warnings": True,
-            "cookiefile":  "cookies.txt",
-        }
+    ydl_opts = {
+        "format":      "bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio/best",
+        "quiet":       True,
+        "no_warnings": True,
+        "cookiefile":  "cookies.txt",
+    }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(
