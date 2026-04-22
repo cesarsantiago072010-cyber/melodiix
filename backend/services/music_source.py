@@ -1,5 +1,5 @@
 from ytmusicapi import YTMusic
-import httpx
+import asyncio
 
 yt = YTMusic()
 
@@ -29,29 +29,30 @@ class MusicSourceAdapter:
         }
 
     async def get_stream_url(self, video_id: str) -> str:
-        instances = [
-            "https://invidious.privacyredirect.com",
-            "https://invidious.nerdvpn.de",
-            "https://inv.nadeko.net",
-            "https://invidious.io.lol",
-        ]
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
-            for instance in instances:
-                try:
-                    resp = await client.get(f"{instance}/api/v1/videos/{video_id}")
-                    print(f"[INV] {instance} status: {resp.status_code}")
-                    if resp.status_code != 200:
-                        continue
-                    data = resp.json()
-                    formats = data.get("adaptiveFormats", [])
-                    audio = [f for f in formats if f.get("type","").startswith("audio")]
-                    if audio:
-                        print(f"[INV] Got URL from {instance}")
-                        return audio[0]["url"]
-                except Exception as e:
-                    print(f"[INV] {instance} error: {e}")
-                    continue
-        return ""
+        import yt_dlp
+
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "quiet": True,
+            "no_warnings": True,
+        }
+
+        def _extract():
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(
+                        f"https://www.youtube.com/watch?v={video_id}",
+                        download=False
+                    )
+                    url = info.get("url", "")
+                    print(f"[YTDLP] Got URL: {url[:80]}")
+                    return url
+            except Exception as e:
+                print(f"[YTDLP] Error: {e}")
+                return ""
+
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, _extract)
 
     async def get_related(self, track_id: str) -> dict:
         try:
