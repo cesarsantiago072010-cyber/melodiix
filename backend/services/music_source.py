@@ -41,11 +41,14 @@ class MusicSourceAdapter:
                         f"{instance}/streams/{video_id}",
                         timeout=10
                     )
+                    print(f"[PIPED] {instance} status: {resp.status_code}")
+                    print(f"[PIPED] response: {resp.text[:300]}")
                     data = resp.json()
                     audio_streams = data.get("audioStreams", [])
                     if audio_streams:
                         return audio_streams[0]["url"]
-            except Exception:
+            except Exception as e:
+                print(f"[PIPED] {instance} error: {e}")
                 continue
         return ""
 
