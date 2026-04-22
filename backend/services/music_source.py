@@ -34,12 +34,7 @@ class MusicSourceAdapter:
             "format":      "bestaudio/best",
             "quiet":       True,
             "no_warnings": True,
-            "extractor_args": {
-                "youtube": {
-                    "player_client": ["tv_embedded"],
-                    "player_skip": ["webpage", "configs"]
-                }
-            },
+            "cookiefile":  "cookies.txt",
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
